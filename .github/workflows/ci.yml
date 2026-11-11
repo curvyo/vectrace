@@ -28,6 +28,16 @@ jobs:
       - run: cargo nextest run --status-level fail
         env:
           VECTRACE_REQUIRE_ASSETS: "1"
+      # nextest does not run example binaries; each example asserts facts about its output.
+      - run: cargo test --examples
+        env:
+          VECTRACE_REQUIRE_ASSETS: "1"
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: examples
+          path: target/examples
+          if-no-files-found: ignore
       - run: cargo build -q --lib --target wasm32-unknown-unknown
       - run: cargo clippy --lib --target wasm32-unknown-unknown -- -D warnings
       - run: cargo deny check

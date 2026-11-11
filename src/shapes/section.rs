@@ -1,5 +1,5 @@
 //! The shape section of the wire: the recognised regions as numbers after a result's text
-//! section, and read back (`specs/0088-trace-recognition`).
+//! section, and read back.
 
 use super::{Band, Join, POINTS, Primitive, ShapeRegion, valid_ratio};
 use crate::shapes::fit::Fitted;

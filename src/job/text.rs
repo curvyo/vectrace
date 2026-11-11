@@ -1,5 +1,5 @@
 //! The trace job with OCR lines and the text section of its numbers
-//! (`specs/0091-trace-text-recognition` `adrs.md` decisions 1 to 3): the text pass runs first, the
+//!: the text pass runs first, the
 //! main trace walks the filled picture, and the accepted lines follow the outlines.
 
 use crate::{PixelMap, Raster, TraceParams};
@@ -11,10 +11,10 @@ use crate::text_pass::text_pass;
 use crate::wire::{Status, mono_wire, status_only, write_texts};
 
 /// One trace with the OCR `lines` (in this picture's pixels): the text pass, then [`mono_wire`]
-/// over the filled picture, then the text section. With a `mask` (`specs/0094` criterion 11)
+/// over the filled picture, then the text section. With a `mask`
 /// every line is left out of the main trace, only those whose box centre the mask keeps stay as
 /// text, and the outlines are clipped. Without lines the numbers are exactly those of
-/// [`mono_wire`] (criteria 12 and 18).
+/// [`mono_wire`].
 pub(crate) fn text_mono_wire(
     raster: Raster<'_>,
     map: PixelMap,
@@ -40,7 +40,7 @@ pub(crate) fn text_mono_wire(
     wire
 }
 
-/// Drops the lines of `pass` whose box centre `region` does not keep (`specs/0094` criterion 11);
+/// Drops the lines of `pass` whose box centre `region` does not keep;
 /// their pixels stay left out of the main trace, so they are neither text nor traced.
 pub(crate) fn keep_lines_in(pass: &mut TextPass, region: Option<&dyn Mask>) {
     if let Some(region) = region {
@@ -48,9 +48,9 @@ pub(crate) fn keep_lines_in(pass: &mut TextPass, region: Option<&dyn Mask>) {
     }
 }
 
-/// The text pass alone (`specs/0091` criterion 25: the lines are decided before the main trace):
+/// The text pass alone:
 /// the numbers of a result without outlines, then the text section of the accepted lines whose
-/// box centre `mask` keeps (`specs/0094` criterion 11), as [`text_mono_wire`] would write it.
+/// box centre `mask` keeps, as [`text_mono_wire`] would write it.
 pub(crate) fn text_regions_wire(
     raster: Raster<'_>,
     map: PixelMap,
@@ -117,7 +117,7 @@ mod tests {
         assert_eq!(read.texts.found, 1);
         assert_eq!(read.texts.lines[0].text, "Grüße");
         assert_ne!(read.texts.lines[0].outlines.len(), 0);
-        // Frage 115 B and criterion 26: the garbage filter and the pixel size travel along.
+        // The garbage filter and the pixel size travel along.
         assert!(read.texts.lines[0].plausible);
         assert!((read.texts.lines[0].pixel.as_mm() - 0.1).abs() < 1e-12);
     }
@@ -160,7 +160,7 @@ mod tests {
         assert_eq!(regions.outlines.len(), 0);
     }
 
-    /// `specs/0094` criterion 11: a line whose box centre the mask does not keep is left out of
+    /// A line whose box centre the mask does not keep is left out of
     /// the main trace and is no text; with the mask keeping it, it is text.
     #[test]
     fn a_mask_keeps_the_lines_by_their_box_centre() {

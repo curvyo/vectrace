@@ -1,6 +1,9 @@
-//! The one entry point of the Trace worker (ADR 0023 §5, ADR 0048 §5): a [`Job`] describes the
-//! picture, the settings, the OCR lines, the mask and whether to recognise shapes; [`run`] gives
-//! the result as the flat numbers the session reads back, [`text_regions`] the text section only.
+//! The entry point for a complete trace job: [`run`] takes a [`Job`] (picture, settings, optional
+//! OCR lines, optional mask, shape recognition on or off) and returns the result as flat numbers.
+//!
+//! Read the numbers back with [`crate::wire::read`]; the layout is described in [`crate::wire`].
+//! [`text_regions`] runs only the text pass. For a plain trace without OCR, masks or shapes,
+//! [`crate::trace`] and [`crate::trace_colours`] return typed results directly.
 
 mod text;
 mod text_colour;
@@ -16,13 +19,13 @@ use crate::shapes::add_shapes;
 /// The settings of a job: one black result or one per colour.
 #[derive(Debug, Clone, Copy)]
 pub enum Mode<'a> {
-    /// One result in black (`specs/0025-raster-trace`).
+    /// One result in black.
     Mono(&'a TraceParams),
-    /// One layer per palette colour (`specs/0089` slice M).
+    /// One layer per palette colour.
     Colours(&'a ColourParams),
 }
 
-/// One trace for the worker.
+/// One trace job: what [`run`] needs.
 #[derive(Clone, Copy)]
 pub struct Job<'a> {
     /// The picture, straight alpha.
@@ -31,18 +34,18 @@ pub struct Job<'a> {
     pub map: PixelMap,
     /// The settings.
     pub mode: Mode<'a>,
-    /// The OCR lines in the picture's pixels (`specs/0091`); none for no text pass.
+    /// The OCR lines in the picture's pixels; none for no text pass.
     pub lines: &'a [OcrLine],
-    /// The area the result keeps (`specs/0094`); `None` keeps all of it.
+    /// The area the result keeps; `None` keeps all of it.
     pub mask: Option<&'a dyn Mask>,
-    /// Recognise shapes and add their section to the result (`specs/0088` Part B).
+    /// Recognise shapes (rectangles, ellipses, polygons, stars) and add their section to the result.
     pub shapes: bool,
 }
 
 /// The result of `job` as numbers, never panicking on bad input (it says `Invalid`).
-/// `on_percent` is called each time the job reaches a higher whole percent (criterion 10); the
+/// `on_percent` is called each time the job reaches a higher whole percent; the
 /// values only rise. With lines the text pass runs first; with no lines the numbers are exactly
-/// those of the plain trace (`specs/0091` criteria 12 and 18).
+/// those of the plain trace.
 #[must_use]
 pub fn run(job: &Job<'_>, on_percent: &mut dyn FnMut(u8)) -> Vec<f64> {
     let mut wire = match job.mode {
@@ -59,8 +62,7 @@ pub fn run(job: &Job<'_>, on_percent: &mut dyn FnMut(u8)) -> Vec<f64> {
     wire
 }
 
-/// The text pass of `job` alone (`specs/0091` criterion 25: the lines are decided before the
-/// main trace): the numbers of a result without outlines, then the text section of the accepted
+/// The text pass of `job` alone: the numbers of a result without outlines, then the text section of the accepted
 /// lines the mask keeps, as [`run`] would write it.
 #[must_use]
 pub fn text_regions(job: &Job<'_>) -> Vec<f64> {

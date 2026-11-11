@@ -216,7 +216,7 @@ pub(crate) fn to_path(segments: &[Seg]) -> BezPath {
 }
 
 /// The anchors of a closed outline: one per segment, the closing one not counted twice. This is
-/// what `Output::nodes` counts; Curvyo's join of trace parts recomputes it with the same rule.
+/// what `Output::nodes` counts.
 #[must_use]
 pub fn node_count(path: &BezPath) -> usize {
     use kurbo::PathEl;

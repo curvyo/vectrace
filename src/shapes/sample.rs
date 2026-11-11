@@ -1,6 +1,5 @@
 //! One closed traced outline as points about one picture pixel apart around its area centroid,
-//! with its area moments (`specs/0088-trace-recognition` Part B: the fit samples at a step
-//! relative to the picture pixel, so the result does not depend on the dpi).
+//! with its area moments.
 
 // The formulas' own names (x, y, u, v, a, b, r, ...) read better than long ones here.
 #![allow(clippy::many_single_char_names, clippy::similar_names)]
@@ -13,7 +12,7 @@ const MOST_POINTS: f64 = 16_384.0;
 /// A closed outline sampled for the shape fit.
 #[derive(Debug, Clone)]
 pub(crate) struct Sampled {
-    /// The area centroid in document millimetres.
+    /// The area centroid in millimetres.
     pub(crate) centre: [f64; 2],
     /// The points about the centroid, in outline order (the last joins the first).
     pub(crate) points: Vec<[f64; 2]>,
@@ -25,7 +24,7 @@ pub(crate) struct Sampled {
     pub(crate) sxy: f64,
     /// The outline's length.
     pub(crate) perimeter: f64,
-    /// The box of the points (document millimetres): min x, min y, max x, max y.
+    /// The box of the points (millimetres): min x, min y, max x, max y.
     pub(crate) bounds: [f64; 4],
 }
 

@@ -1,6 +1,5 @@
-//! The settings schema of the Trace tool as data (`specs/0025-raster-trace` criteria 4 to 6, 41,
-//! 45; `specs/0089` Frage 85 B): the fields the bar's controls are generated from, with their
-//! defaults and steps.
+//! The trace settings as data: name, label, unit, range, default and step of each setting, so a
+//! host can generate its controls from them.
 
 use crate::params::{Denoise, PixelLength, Selection, Upscale};
 use crate::select::DEFAULT_PICK_TOLERANCE;
@@ -30,7 +29,7 @@ pub enum ParamUnit {
     Pixel,
 }
 
-/// One setting of the Trace tool: everything a bar control needs to be drawn and stepped.
+/// One trace setting: everything a control needs to be drawn and stepped.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct ParamSpec {
     /// The setting's key, as the host stores it.
@@ -53,18 +52,17 @@ pub struct ParamSpec {
     pub big_step: f64,
     /// Ctrl+Up and Ctrl+Down change it by this (the same as `step` where there is no finer one).
     pub fine_step: f64,
-    /// The group of the bar it sits in.
+    /// The group of the settings panel it sits in.
     pub group: &'static str,
-    /// Whether it sits in the Advanced block (criterion 41).
+    /// Whether it sits in the Advanced block.
     pub advanced: bool,
 }
 
-/// The default Smooth (criterion 4). Step 0: criterion 21 holds from Smooth 30 up (mean 0.33 px
-/// at 20, 0.27 px at 30, 0.25 px at 80); 80 gives fewer nodes, less wobble and a lower mean
-/// deviation on the quality set than 30, so it stays (`specs/0025-raster-trace/plan.md`).
+/// The default Smooth (0 to 100). 80 gives fewer nodes, less wobble and a lower mean deviation on
+/// the quality set than 30.
 pub const DEFAULT_SMOOTH: u8 = 80;
 
-/// The default deviation tolerance in source pixels (`specs/0089` Frage 85 B): the largest
+/// The default deviation tolerance in source pixels: the largest
 /// distance of an outline from the smoothed pixel border.
 pub const DEFAULT_TOLERANCE_PX: PixelLength = PixelLength::from_px(0.5);
 
@@ -74,17 +72,17 @@ pub const MIN_TOLERANCE_PX: f64 = 0.1;
 /// The largest deviation tolerance in source pixels.
 pub const MAX_TOLERANCE_PX: f64 = 3.0;
 
-/// The default Specks size in millimetres (criterion 4).
+/// The default Specks size in millimetres.
 pub const DEFAULT_SPECKS_MM: Mm = Mm::from_mm(0.5);
 
 /// The Threshold of a picture of one grey level, and of a first use before the image is read
-/// (criterion 9).
+///.
 pub const DEFAULT_THRESHOLD: u8 = 128;
 
 /// The largest Specks size in millimetres.
 pub const MAX_SPECKS_MM: f64 = 10.0;
 
-/// The settings of the Trace tool in bar order (criteria 4, 5 and 6).
+/// The main trace settings in panel order.
 pub const PARAMS: &[ParamSpec] = &[
     ParamSpec {
         name: "threshold",
@@ -144,7 +142,7 @@ pub const PARAMS: &[ParamSpec] = &[
     },
 ];
 
-/// The selection method and its colour tolerance (`specs/0089` criterion 14): the Method menu
+/// The selection method and its colour tolerance: the Method menu
 /// and the field that takes the Threshold's place in the colour methods.
 pub const METHOD_PARAMS: &[ParamSpec] = &[
     ParamSpec {
@@ -177,8 +175,8 @@ pub const METHOD_PARAMS: &[ParamSpec] = &[
     },
 ];
 
-/// The controls of the Advanced block in its order, the two toggles first (criteria 41 and 45): the same schema as
-/// [`PARAMS`], kept apart so the bar's main rows stay the three of slice 1.
+/// The controls of the Advanced block in its order, the two toggles first: the same schema as
+/// [`PARAMS`], kept apart so a settings panel can show the main rows first.
 pub const ADVANCED_PARAMS: &[ParamSpec] = &[
     ParamSpec {
         name: "invert",
@@ -252,7 +250,7 @@ pub const ADVANCED_PARAMS: &[ParamSpec] = &[
     },
 ];
 
-/// The default Corners: a bend sharper than 60° stays a corner, slice 1's fixed angle.
+/// The default Corners: a bend sharper than 60° stays a corner.
 pub const DEFAULT_CORNERS: u8 = 70;
 
 #[cfg(test)]
@@ -260,10 +258,9 @@ mod tests {
     use super::*;
     use crate::params::TraceParams;
 
-    /// Criterion 6: the schema carries the defaults and ranges of criteria 4 and 5, plus the
-    /// Tolerance of `specs/0089` Frage 85 B after Smooth.
+    /// The schema carries the defaults and ranges of Threshold, Smooth, Tolerance and Specks.
     #[test]
-    fn the_schema_matches_criteria_4_and_5() {
+    fn the_schema_lists_the_main_settings() {
         let names: Vec<_> = PARAMS.iter().map(|p| p.name).collect();
         assert_eq!(names, ["threshold", "smooth", "tolerance", "specks"]);
         let [method, colour] = METHOD_PARAMS else {
@@ -316,7 +313,7 @@ mod tests {
         );
         let advanced = &ADVANCED_PARAMS[2..];
         assert_eq!(ADVANCED_PARAMS[0].kind, ParamKind::Toggle);
-        // Frage 88 A: the toggle's label; its stored key stays.
+        // The toggle's label; its stored key stays.
         assert_eq!(ADVANCED_PARAMS[1].label, "Drop border shapes");
         assert_eq!(advanced[0].kind, ParamKind::Choice(&["Off", "Low", "High"]));
         assert_eq!(advanced[1].kind, ParamKind::Choice(&["Auto", "Off"]));
@@ -328,7 +325,7 @@ mod tests {
         assert_eq!(advanced[2].default, f64::from(first.corners));
     }
 
-    /// Criterion 43 (removed, Frage 74 A): neither the schema nor the values know a Node limit
+    /// Criterion 43: neither the schema nor the values know a Node limit
     /// or a Full-size preview.
     #[test]
     fn there_is_no_node_limit_and_no_full_size_preview() {

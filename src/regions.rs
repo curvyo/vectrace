@@ -1,6 +1,6 @@
-//! The regions of the foreground mask (ADR 0023 §3 steps 2 and 3): one scanline union-find
+//! The regions of the foreground mask: one scanline union-find
 //! labelling with `u32` labels, 8-connected for foreground and 4-connected for background, so a
-//! diagonal stroke one pixel wide stays one region (`specs/0089` Frage 96 A).
+//! diagonal stroke one pixel wide stays one region.
 
 use crate::TraceError;
 use crate::progress::Poller;
@@ -198,7 +198,7 @@ mod tests {
     fn foreground_is_eight_connected_background_four_and_scan_ordered() {
         let l = labels(&["#..#", ".#..", "....", "##.."]);
         let fg: Vec<_> = l.regions.iter().filter(|r| r.foreground).collect();
-        // Diagonal foreground neighbours are one region (specs/0089 Frage 96 A).
+        // Diagonal foreground neighbours are one region.
         assert_eq!(fg.len(), 3);
         assert_eq!(fg[0].pixels, 2);
         assert_eq!(l.regions[0].first, 0);

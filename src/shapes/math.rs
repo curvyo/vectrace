@@ -1,6 +1,5 @@
 //! Angles and their sines from `+ − × ÷` and `sqrt` only, so the shape fit of Trace gives the
-//! same bits natively and in wasm (`specs/0088-trace-recognition` Part B criterion 13; the rule of
-//! `specs/0089` adrs.md §8: no platform `atan2`, `sin` or `cos`).
+//! same bits natively and in wasm.
 
 // The series' own names (r, s, c, a, b) read better than long ones here.
 #![allow(clippy::many_single_char_names)]

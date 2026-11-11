@@ -1,4 +1,4 @@
-//! Places the structural corners a chain's turn found (`specs/0089` adrs.md §5): each at the
+//! Places the structural corners a chain's turn found: each at the
 //! crossing of the total-least-squares lines of its two sides, a blunt run of close corners as
 //! one acute tip.
 

@@ -1,4 +1,4 @@
-//! The multicolour trace (`specs/0089` slice M, adrs.md §10): an RGBA8 raster and trace
+//! The multicolour trace: an RGBA8 raster and trace
 //! settings in, one layer of closed outlines per palette colour out, neighbouring colours
 //! sharing the same fitted boundary.
 
@@ -24,7 +24,7 @@ pub struct ColourParams {
     /// The selection, geometry and Ignore below of the trace.
     pub trace: TraceParams,
     /// How many colours (2 to 16, the fixed ones included); `None` finds the count. Pick colours
-    /// ignores it: its palette is exactly the picked colours (Frage 90 A).
+    /// ignores it: its palette is exactly the picked colours.
     pub colours: Option<u8>,
     /// Colours the maker picked into the palette; kept exactly (Brightness and Remove
     /// background; Pick colours takes its swatches).
@@ -66,7 +66,7 @@ pub struct ColourLayer {
     pub fixed: bool,
     /// Traced pixels it covers.
     pub pixels: u64,
-    /// Closed outlines in document millimetres, holes wound against their outer outline.
+    /// Closed outlines in millimetres, holes wound against their outer outline.
     pub outlines: Vec<BezPath>,
 }
 

@@ -4,7 +4,7 @@ use crate::params::Rgb8;
 use crate::raster::Raster;
 use crate::select::OPAQUE;
 
-/// The background colour of Remove background's Auto (criterion 16, `adrs.md` §3): the most
+/// The background colour of Remove background's Auto: the most
 /// frequent colour of the opaque border pixels, quantised to 5 bits per channel (ties by the
 /// smaller value), as the per-channel median of the border pixels in that bin. `None` when at
 /// most half the border is opaque (a transparent background) or the raster is invalid.
@@ -61,7 +61,7 @@ pub fn suggest_background(raster: Raster<'_>) -> Option<Rgb8> {
     Some(Rgb8::new(median(0), median(1), median(2)))
 }
 
-/// The colour a pipette click at pixel (`x`, `y`) takes (criterion 17, `ux-notes.md` §6): the
+/// The colour a pipette click at pixel (`x`, `y`) takes: the
 /// per-channel median of the opaque pixels of the 3 x 3 window around it, so a click on an
 /// anti-aliased edge does not take a blend; `None` outside the picture or on a transparent
 /// pixel.

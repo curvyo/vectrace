@@ -1,4 +1,4 @@
-//! Cuts a label map into its shared edges (`specs/0089` adrs.md §10): every maximal chain of
+//! Cuts a label map into its shared edges: every maximal chain of
 //! crack edges with one label pair, ending at junction vertices (pixel corners where three or
 //! four labels meet) or closed, and the loops of each colour as edge ids with their direction.
 //!

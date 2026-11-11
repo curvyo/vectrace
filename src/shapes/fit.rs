@@ -1,5 +1,5 @@
 //! The simplest primitive a sampled traced outline is within a tolerance of
-//! (`specs/0088-trace-recognition` Part B criteria 1 to 5 and 7): circle, ellipse, rectangle,
+//!: circle, ellipse, rectangle,
 //! rounded rectangle, then the regular polygon or star of `trace_shape_star`; the first that
 //! fits wins.
 
@@ -17,7 +17,7 @@ use crate::shapes::sample::{Sampled, length};
 /// (cosine of 10 degrees).
 const SIDE_COSINE: f64 = 0.984_807_753_012_208;
 
-/// A primitive with its rotation about its frame's centre, in document millimetres.
+/// A primitive with its rotation about its frame's centre, in millimetres.
 pub(crate) type Fitted = (Primitive, Angle);
 
 /// The simplest primitive every point of `outline` is within `tolerance` of, if any.

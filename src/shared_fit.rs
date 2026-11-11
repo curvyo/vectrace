@@ -1,5 +1,4 @@
-//! Fits every shared edge of a multicolour label map once (`specs/0089` adrs.md §10, criterion
-//! 28): each colour loop is a closed chain with its junction vertices pinned, an edge is fitted
+//! Fits every shared edge of a multicolour label map once: each colour loop is a closed chain with its junction vertices pinned, an edge is fitted
 //! in the loop of its larger label (its owner) and taken reversed by the other, so neighbours
 //! share the same segments and a triple junction is one node; a fitted span that crosses goes
 //! one level coarser, down to the walked contour, which never crosses.

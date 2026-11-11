@@ -1,5 +1,4 @@
-//! Fills masked pixels from the ring around them (`specs/0091-trace-text-recognition` `adrs.md`
-//! decision 3).
+//! Fills masked pixels from the ring around them.
 //!
 //! Every 8-connected component of the mask takes, channel by channel, the median of the unmasked
 //! pixels 8-adjacent to it (the lower of the two middle values for an even count), so a text on a

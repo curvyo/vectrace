@@ -1,5 +1,5 @@
 //! The bands of a traced region found from its holes when its outer outline is no primitive
-//! (`specs/0088-trace-recognition` Part B criterion 16, `adrs.md` decision 22): a stroke whose
+//!: a stroke whose
 //! joins are bevelled, or touching strokes whose outer outlines the trace merged into one.
 
 // The formulas' own names (h, k, o, p, t, ...) read better than long ones here.
@@ -18,11 +18,10 @@ use crate::shapes::{Band, Join, Primitive};
 const JOINS: [Join; 3] = [Join::Miter, Join::Bevel, Join::Round];
 
 /// The radius about each corner of the centre line, in band widths, whose traced points only
-/// choose the join and are left out of the deviation check (customer 2026-11-04: the tracer
-/// rounds, flattens or clips the tips; Proposal, calibrated on his ten-star page).
+/// choose the join and are left out of the deviation check.
 const TIP_ZONE: f64 = 1.5;
 
-/// The most a band's stroked area may differ from the traced band's, as a share of it (Proposal).
+/// The most a band's stroked area may differ from the traced band's, as a share of it.
 pub(crate) const BAND_AREA_SHARE: f64 = 0.03;
 
 /// Halvings of a half width's search.
@@ -69,7 +68,7 @@ impl Stroke {
     }
 }
 
-/// The points of `s` in document millimetres.
+/// The points of `s` in millimetres.
 fn absolute(s: &Sampled) -> Vec<[f64; 2]> {
     s.points
         .iter()
@@ -255,7 +254,7 @@ pub(crate) fn touching_bands(
         })
         .collect::<Option<_>>()?;
     let outers: Vec<Vec<[f64; 2]>> = strokes.iter().map(|s| s.outline(1.0)).collect();
-    // A point in a tip zone is left to the join (decision 23).
+    // A point in a tip zone is left to the join.
     let in_tip = |p: [f64; 2]| strokes.iter().any(|s| by_zone(&[p], s).0.len() == 1);
     let explained = o
         .iter()

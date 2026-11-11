@@ -1,5 +1,5 @@
 //! The offset outlines of a stroke along a star or regular polygon, mitred or bevelled at its
-//! joins (`specs/0088-trace-recognition` Part B criterion 16, `adrs.md` decision 22).
+//! joins.
 
 // The formulas' own names (a, b, d, n, p, s, t, ...) read better than long ones here.
 #![allow(clippy::many_single_char_names, clippy::similar_names)]
@@ -16,10 +16,10 @@ use crate::shapes::{Join, Primitive, valid_ratio};
 /// The pieces of a round join's arc.
 const ARC_STEPS: u32 = 8;
 
-/// The longest miter the renderer draws, in stroke widths (SVG's 4, `curvyo-render-core`).
+/// The longest miter the renderer draws, in stroke widths (SVG's default of 4).
 pub(crate) const MITER_LIMIT: f64 = 4.0;
 
-/// The corners of a star or regular polygon in document millimetres, turning counter-clockwise
+/// The corners of a star or regular polygon in millimetres, turning counter-clockwise
 /// (positive area); `None` for any other kind.
 pub(crate) fn corners(shape: &Primitive) -> Option<Vec<[f64; 2]>> {
     let (centre, radius, angle, n, ratio) = match *shape {

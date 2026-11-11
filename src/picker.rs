@@ -1,5 +1,5 @@
 //! The score of every pixel for Pick colours: the two-colour mixing model, the picture's noise
-//! taken out, and the fringe of cheap resampling (`specs/0089` criteria 17 and 18).
+//! taken out, and the fringe of cheap resampling.
 
 use crate::params::Rgb8;
 use crate::raster::Raster;
@@ -127,10 +127,10 @@ fn median9(mut p: [u8; 9]) -> u8 {
     p[4]
 }
 
-/// The two-colour mixing model of Pick colours (trial C1): a pixel on the segment from the
+/// The two-colour mixing model of Pick colours: a pixel on the segment from the
 /// background to a picked colour (within the gate) belongs to it by its mixing fraction, the
 /// anti-aliasing blend at its coverage; one on the segment between two picked colours belongs
-/// fully (touching picks are one region, criterion 19); the score is the largest over all.
+/// fully; the score is the largest over all.
 /// Without a background colour (a transparent border) a pixel belongs fully within the gate of
 /// a picked colour, and the alpha carries the edges.
 struct Picker {

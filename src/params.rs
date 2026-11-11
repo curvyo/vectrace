@@ -1,4 +1,4 @@
-//! The trace values (`specs/0025-raster-trace` criteria 41, 59, 60; `specs/0089` adrs.md §7):
+//! The trace values:
 //! the choices, the presets, the values one trace takes and the geometry they map to.
 
 use crate::units::Mm;
@@ -8,7 +8,7 @@ use crate::schema::{
     MAX_TOLERANCE_PX, MIN_TOLERANCE_PX,
 };
 
-/// The median filter before the Threshold (criterion 41, `adrs.md` note 2026-10-28 point 4).
+/// The median filter before the Threshold.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum Denoise {
     /// No filter.
@@ -50,7 +50,7 @@ impl Denoise {
     }
 }
 
-/// The 2x copy before tracing (criterion 41).
+/// The 2x copy before tracing.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum Upscale {
     /// Pictures under `UPSCALE_AUTO_BELOW_PX` are traced from a 2x copy.
@@ -89,7 +89,7 @@ impl Upscale {
     }
 }
 
-/// A named set of Trace settings for what the maker does with the paths (criteria 59 and 60):
+/// A named set of Trace settings for what the maker does with the paths:
 /// a pick sets these values and nothing else, never the Threshold.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Preset {
@@ -130,8 +130,8 @@ impl Preset {
     }
 }
 
-/// The presets in menu order (criteria 59 and 60). Logo / Line art holds the first-use defaults,
-/// so slice 1's results do not change (criterion 65).
+/// The presets in menu order. Logo / Line art holds the first-use defaults,
+/// so the first use gives the same result as before.
 pub const PRESETS: &[Preset] = &[
     Preset {
         key: "logo",
@@ -272,8 +272,7 @@ impl TraceParams {
     }
 }
 
-/// The geometry one trace fits with (`specs/0089` adrs.md §2, §7: input smoothing, deviation
-/// tolerance and corner protection kept apart), in source pixels; built only by [`geometry`],
+/// The geometry one trace fits with, in source pixels; built only by [`geometry`],
 /// so no caller hands in an unmapped value.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub(crate) struct Geometry {
@@ -290,8 +289,7 @@ const SMOOTHING_PER_STEP: f64 = 0.03;
 
 /// The geometry of `smooth` (0 to 100: the standard deviation of the smoothing, 0.03 px per
 /// step), the deviation tolerance `tolerance_px` and `corners` (0 to 100: the corner angle
-/// 200° − 2 × Corners within 10° to 180°), each mapped to one concern only (`specs/0089`
-/// adrs.md §7, Frage 85 B).
+/// 200° − 2 × Corners within 10° to 180°), each mapped to one concern only.
 pub(crate) fn geometry(smooth: u8, tolerance_px: f64, corners: u8) -> Geometry {
     let smoothing_px = SMOOTHING_PER_STEP * f64::from(smooth.min(100));
     Geometry {
@@ -302,7 +300,7 @@ pub(crate) fn geometry(smooth: u8, tolerance_px: f64, corners: u8) -> Geometry {
 }
 
 /// The cosine of the corner angle `200° − 2 × Corners` (within 10° to 180°), through a fixed
-/// polynomial in basic operations, never `f64::cos` (ADR 0023 §4).
+/// polynomial in basic operations, never `f64::cos`.
 pub(crate) fn corner_cos(corners: u8) -> f64 {
     let degrees = (200 - 2 * i32::from(corners.min(100))).clamp(10, 180);
     // cos(x) = −cos(180° − x), so the series runs on 0 to 90° only.
@@ -337,10 +335,10 @@ mod tests {
     use super::*;
     use crate::schema::{ADVANCED_PARAMS, PARAMS};
 
-    /// Criteria 45, 59 and 60: the preset table in menu order with the customer's texts, its
+    /// The preset table in menu order with its texts, its
     /// values within the schema's ranges, Logo / Line art equal to the first use.
     #[test]
-    fn the_presets_match_criteria_59_and_60() {
+    fn the_presets_match_their_table() {
         let menu: Vec<_> = PRESETS.iter().map(|p| (p.key, p.label, p.detail)).collect();
         assert_eq!(
             menu,
@@ -387,7 +385,7 @@ mod tests {
             assert_eq!(picked.threshold, 140);
             assert!(picked.invert && picked.ignore_background);
         }
-        // The values of criterion 60 (step 0 of slice 2, `adrs.md` 2026-10-28 second note).
+        // The values of each preset.
         let values: Vec<_> = PRESETS
             .iter()
             .map(|p| {

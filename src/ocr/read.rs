@@ -3,9 +3,9 @@
 //! The line is sampled along its quad at [`LINE_HEIGHT`] px, its width rounded up to a multiple
 //! of [`WIDTH_BUCKET`], at least [`MIN_WIDTH`], and padded with the recogniser's zero (mid grey), then decoded greedily:
 //! per time step the most likely class, repeats and blanks dropped; a character's confidence is
-//! its highest probability over the steps it spans (ADR 0028 §3). A line whose read is unsure or
+//! its highest probability over the steps it spans. A line whose read is unsure or
 //! whose quad is steeper than 45° is read once more turned by 180°, and the surer read is kept
-//! (`specs/0091` slice 3: upside-down and steep text, no second model).
+//!.
 
 use rten_tensor::prelude::*;
 use rten_tensor::{NdTensor, Tensor};
@@ -18,32 +18,27 @@ use crate::ocr::{OcrError, TextLine};
 /// The recogniser's input height, px.
 pub const LINE_HEIGHT: usize = 48;
 
-/// Widths are rounded up to a multiple of this, so similar lines share a shape (Proposal).
+/// Widths are rounded up to a multiple of this, so similar lines share a shape.
 const WIDTH_BUCKET: usize = 32;
 /// The narrowest input: shorter lines are padded to it, which reads them markedly better
-/// than a tight pad (spike and reference set, Proposal).
+/// than a tight pad.
 const MIN_WIDTH: usize = 1024;
-/// The widest input; a longer line is squeezed into it (Proposal).
+/// The widest input; a longer line is squeezed into it.
 const MAX_WIDTH: usize = 3200;
 /// A read whose mean character confidence is below this is unsure and the line is read turned
-/// too (Proposal, `specs/0091` slice 3, calibrated in its `adrs.md`: upright lines of the posters
-/// read at 0.93 and up, upside-down lines at 0.82 and below).
+/// too.
 const SURE_READ: f32 = 0.9;
 /// A line is sampled this share of its height further at both ends along the line, for the
-/// turned read (lead 2026-11-03: the 180° poster's "BÄCKEREI" box ends at its "I").
+/// turned read (a 180° poster's "BÄCKEREI" box ends at its "I").
 const END_PAD: f32 = 0.3;
-/// A line kept as read turned grows by this share of its height above its text (Proposal,
-/// `specs/0091` slice 3): the detector boxes the marks above upright letters but not those below
+/// A line kept as read turned grows by this share of its height above its text: the detector boxes the marks above upright letters but not those below
 /// upside-down ones (the reference poster's "BÄCKEREI": 107 px upright, 91 px turned), so the
 /// text pass would leave the dots of "Ä" as shapes.
 const MARKS_ROOM: f32 = 0.2;
 /// A turned read wins only when the first read's doubt (1 minus its mean confidence) is at least
-/// this many times its own (Proposal, `specs/0091` slice 3, calibrated: the upside-down lines of
-/// the fixtures 12 times and more, the `0025` dot grid's "0000…" against its turned "0000…01"
-/// 3.7 times).
+/// this many times its own.
 const TURNED_DOUBT: f32 = 5.0;
-/// A turned read must hold this many letters or digits to win (Proposal: short symbol lines of
-/// the screenshot, "3" or "*", read about as well either way and stay as first read).
+/// A turned read must hold this many letters or digits to win.
 const MIN_TURNED_LETTERS: usize = 2;
 
 /// One detected line sampled for the recogniser: its quad and its pixels at [`LINE_HEIGHT`] px,
@@ -214,7 +209,7 @@ pub(crate) fn crop(image: &Rgb, quad: RotatedBox) -> Option<LineCrop> {
 /// The string of `line`, or `None` when nothing was read. A line whose read is unsure or whose
 /// quad is steep is read turned by 180° too; the turned read is kept, with its quad turned, when
 /// it is sure, clearly surer (its doubt at most a fifth of the first read's) and holds at least
-/// two letters or digits (`specs/0091` slice 3).
+/// two letters or digits.
 ///
 /// # Errors
 /// [`OcrError::Invalid`] for a crop whose samples do not match its width, [`OcrError::BadModel`]

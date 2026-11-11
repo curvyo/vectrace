@@ -1,4 +1,4 @@
-//! Turns one closed crack chain into a fitted outline in pixels (`specs/0089` adrs.md §5):
+//! Turns one closed crack chain into a fitted outline in pixels:
 //! corners on the raw chain, the spans between them smoothed with the corners pinned, long
 //! straight runs as lines, the rest as cubics within the deviation tolerance, every part held
 //! within the room its clearance leaves (`clearance.rs`), plus the coarser contours the guard
@@ -47,7 +47,7 @@ const LINE_RESIDUAL: f64 = 0.1;
 /// A straight run inside a span is at least this long, source px.
 const LINE_MIN: f64 = 60.0;
 
-/// One closed crack chain with its structural corners (stage S3 of adrs.md §6).
+/// One closed crack chain with its structural corners.
 #[derive(Debug, Clone)]
 pub(crate) struct Chain {
     /// The pixel corners, clockwise for an outer outline and counter-clockwise for a hole.
@@ -166,8 +166,7 @@ impl Chain {
     }
 
     /// A closed chain whose vertices at `pins` (indices, ascending) are fixed nodes: corners
-    /// placed exactly at their vertex, which end the spans beside them (the junctions of a
-    /// multicolour loop, `specs/0089` adrs.md §10); a structural corner within one scale unit
+    /// placed exactly at their vertex, which end the spans beside them; a structural corner within one scale unit
     /// of a pin gives way to it.
     pub(crate) fn pinned(
         vertices: Vec<Point>,

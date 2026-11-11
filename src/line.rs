@@ -1,5 +1,5 @@
-//! Fits straight lines to runs of chain points by total least squares (`specs/0089` adrs.md §5),
-//! with the vector helpers of the geometry modules in basic operations and `sqrt` only (§8).
+//! Fits straight lines to runs of chain points by total least squares,
+//! with the vector helpers of the geometry modules in basic operations and `sqrt` only.
 
 use kurbo::{Point, Vec2};
 

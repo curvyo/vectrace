@@ -1,11 +1,10 @@
-//! Turns OCR lines into region outlines and the pixels the trace leaves out
-//! (`specs/0091-trace-text-recognition` `adrs.md` decisions 2 and 3).
+//! Turns OCR lines into region outlines and the pixels the trace leaves out.
 //!
 //! Per accepted line: Otsu over the pixels inside its quad picks the line's own Threshold; the
 //! class that touches the border of the quad's box more is the background, so white text on a
 //! dark box is foreground; the quad is traced on its own with the current settings, the
 //! foreground made dark; the foreground pixels inside the quad, grown by 1 px, are left out of
-//! the main trace and filled from their surroundings. Integers and fixed orders as `0089` §8.
+//! the main trace and filled from their surroundings. Only integer arithmetic and fixed orders are used, so the result is the same on every platform.
 
 use std::ops::ControlFlow;
 
@@ -15,10 +14,10 @@ use kurbo::{BezPath, Point, Vec2};
 use crate::inpaint::{inpaint, median};
 use crate::ocr::OcrLine;
 
-/// The box of a quad grows by this many pixels on each side (decision 2).
+/// The box of a quad grows by this many pixels on each side.
 const BOX_MARGIN: f64 = 2.0;
 /// A quad grows by this share of its height on each side before it is traced and masked
-/// (Proposal): the detector's box is tight around the letters' bodies, and umlaut dots, accents
+///: the detector's box is tight around the letters' bodies, and umlaut dots, accents
 /// and descenders reach past it.
 const QUAD_GROWTH: f64 = 0.2;
 
@@ -52,30 +51,30 @@ fn grown(quad: &[[f64; 2]; 4]) -> [[f64; 2]; 4] {
 pub(crate) struct TextRegion {
     /// The OCR's string.
     pub text: String,
-    /// The line's own trace, in document millimetres.
+    /// The line's own trace, in millimetres.
     pub outlines: Vec<BezPath>,
-    /// The line's direction in document millimetres (the quad's top edge).
+    /// The line's direction in millimetres (the quad's top edge).
     pub direction: Vec2,
-    /// The centre of the line's box (its quad) in document millimetres: the point a mask's
-    /// region tests (`specs/0094` criterion 11).
+    /// The centre of the line's box (its quad) in millimetres: the point a mask's
+    /// region tests.
     pub centre: Point,
     /// Pixels left out of the main trace for it.
     pub masked: usize,
     /// The OCR line passes the garbage filter ([`OcrLine::plausible`]).
     pub plausible: bool,
-    /// The size of one picture pixel along the line, document millimetres.
+    /// The size of one picture pixel along the line, millimetres.
     pub pixel: f64,
-    /// Where the reader saw each character: document millimetres along the line's unit
+    /// Where the reader saw each character: millimetres along the line's unit
     /// direction (empty when not known).
     pub positions: Vec<f64>,
-    /// The per-channel lower median of the line's text pixels (`specs/0091` decision 6).
+    /// The per-channel lower median of the line's text pixels.
     pub colour: Rgb8,
     /// The same median of those pixels once filled from their surroundings: what lies under the
-    /// text (slice 2, the background candidate).
+    /// text.
     pub under: Rgb8,
 }
 
-/// What the text pass hands to the main trace and back to the session.
+/// What the text pass hands to the main trace and back to the caller.
 #[derive(Debug, Clone, PartialEq)]
 pub(crate) struct TextPass {
     /// The picture with the left-out pixels filled from their surroundings.
@@ -294,7 +293,7 @@ pub(crate) fn text_pass(
     pass
 }
 
-/// The centre of `quad` (picture pixels) in document millimetres.
+/// The centre of `quad` (picture pixels) in millimetres.
 fn quad_centre(quad: &[[f64; 2]; 4], pixel_map: PixelMap) -> Point {
     let mid = quad
         .iter()

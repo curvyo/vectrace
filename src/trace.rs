@@ -1,6 +1,6 @@
-//! The one trace (ADR 0023 §2, §3, amended by `specs/0089` adrs.md §5): Denoise, Upscale, mask,
+//! The one trace: Denoise, Upscale, mask,
 //! background and specks, regions and holes, one crack chain per boundary, fitted, guarded,
-//! mapped to document millimetres, with the counts the status line shows.
+//! mapped to millimetres, with the counts of the result.
 
 use std::ops::ControlFlow;
 
@@ -18,11 +18,10 @@ use crate::raster::Raster;
 use crate::regions::{Labels, Region, label};
 use crate::select::{Fields, fields, is_content};
 
-/// A single region with this many holes or more is not traced (criterion 16, `adrs.md`
-/// decision 3).
+/// A single region with this many holes or more is not traced.
 pub const MAX_HOLES_PER_REGION: usize = 65_000;
 
-/// The counts of a trace (criterion 11).
+/// The counts of a trace.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub struct Counts {
     /// Outlines, outer and holes.
@@ -33,10 +32,10 @@ pub struct Counts {
     pub specks_removed: usize,
 }
 
-/// What a trace made (criterion "Trace result" in Terms).
+/// What a trace made.
 #[derive(Debug, Clone, PartialEq)]
 pub struct TraceResult {
-    /// Closed outlines in document millimetres, in first-scan order of their regions, each
+    /// Closed outlines in millimetres, in first-scan order of their regions, each
     /// region's outer outline before its holes; holes wound against their outer outline.
     pub outlines: Vec<BezPath>,
     /// The counts.
@@ -45,7 +44,7 @@ pub struct TraceResult {
     pub foreground_pixels: u64,
     /// Every pixel of the picture is foreground after specks: one outline covers it all.
     pub covers_whole_image: bool,
-    /// What the fit had to do (`specs/0089` adrs.md §2).
+    /// What the fit had to do.
     pub diagnostics: Diagnostics,
 }
 
@@ -53,10 +52,10 @@ pub struct TraceResult {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub struct Diagnostics {
     /// Outlines kept at a coarser contour because their fit crossed itself or came too close to
-    /// another outline (criterion 10); in a multicolour trace, edge spans kept coarser because
+    /// another outline; in a multicolour trace, edge spans kept coarser because
     /// they crossed.
     pub fallbacks: usize,
-    /// Colour regions below Ignore below joined to a neighbour (multicolour, criterion 27).
+    /// Colour regions below Ignore below joined to a neighbour.
     pub joined_regions: usize,
 }
 
@@ -76,8 +75,8 @@ pub enum TraceError {
 
 /// Traces `raster` with `params`: the pixels the selection method makes content (membership of
 /// the method times the alpha at least ½, after Denoise and Upscale; Invert flips the method's
-/// part) become closed outlines, mapped to document millimetres by `pixel_map`
-/// (pixel corners, ADR 0017 §6). `poll` is called every 64 rows of the passes over the picture
+/// part) become closed outlines, mapped to millimetres by `pixel_map`
+///. `poll` is called every 64 rows of the passes over the picture
 /// and before each region; `Break` returns [`TraceError::Cancelled`].
 ///
 /// # Errors
@@ -144,7 +143,7 @@ pub(crate) fn trace_with(
     poller.check(Phase::Tracing, 0, flat.len().max(1))?;
     let (clearances, rooms) = room(&flat, geometry, masked.unit, &mut poller)?;
     // A fit may shrink a shape the Specks kept below the Specks area: it then keeps the shape as
-    // its pixel border, which the Specks measured (criteria 10 and 19).
+    // its pixel border, which the Specks measured.
     let band = Band {
         min_area_px: masked.min_area_mm2 / masked.map.determinant().abs(),
     };
@@ -164,8 +163,7 @@ pub(crate) fn trace_with(
             )
         })
         .collect();
-    // Smoothing can shrink a region just above the Specks size below it (criterion 19; the
-    // band kept the fits down to `BAND_SHARE` of it).
+    // Smoothing can shrink a region just above the Specks size below it.
     if masked.min_area_mm2 > 0.0 {
         specks_removed +=
             drop_small_outlines(&mut traced, masked.map, BAND_SHARE * masked.min_area_mm2);

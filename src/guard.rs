@@ -1,5 +1,5 @@
 //! Finds the fitted outlines that cross themselves or come too close to another outline
-//! (`specs/0089` adrs.md §5, criterion 10), so the trace can fall back for them.
+//!, so the trace can fall back for them.
 //!
 //! Every outline is flattened to 0.02 px; segments are put into 4 px cells by a sort (no hash
 //! map, no grid of the whole picture) and every pair in a cell is tested in basic operations.

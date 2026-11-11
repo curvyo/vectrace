@@ -1,5 +1,5 @@
-//! The shape pass of Trace (`specs/0088-trace-recognition` Part B): which traced regions are
-//! primitives within the picture-relative tolerance, written as a section of the worker's numbers
+//! The shape pass of Trace: which traced regions are
+//! primitives within the picture-relative tolerance, written as a section of a job's numbers
 //! after the text section and read back.
 
 mod band;
@@ -23,12 +23,10 @@ use crate::shapes::sample::{Sampled, sample_closed};
 use section::write_shapes;
 pub(crate) use section::{SHAPE_MARK, read_shapes};
 
-/// The least tolerance, in picture pixels (`specs/0088` Frage 73: 0.2 mm at 10 px/mm; the rule of
-/// `specs/0091` criterion 26).
+/// The least tolerance, in picture pixels.
 pub(crate) const SHAPE_TOLERANCE_PX: f64 = 2.0;
 
-/// The tolerance as a share of the square root of the outline's area (Proposal, `adrs.md`
-/// Part B): large shapes may stray a little more than the pixel floor.
+/// The tolerance as a share of the square root of the outline's area: large shapes may stray a little more than the pixel floor.
 pub(crate) const SHAPE_TOLERANCE_SHARE: f64 = 0.01;
 
 /// A primitive the shape pass recognised, as the wire carries it: plain numbers in millimetres.
@@ -83,8 +81,8 @@ pub enum Primitive {
 /// The corners of a polygon and the tips of a star (the document's `PointCount`, tested).
 pub const POINTS: RangeInclusive<u32> = 3..=1024;
 
-/// The inner ratio of a star when it lies in the open interval (0, 1). Public only so that
-/// Curvyo's adapter tests can assert that its `InnerRatio` accepts exactly the same ratios.
+/// The inner ratio of a star when it lies in the open interval (0, 1), else `None`. Public so
+/// that a caller can check a ratio against exactly the range the shape pass produces.
 #[must_use]
 pub fn valid_ratio(ratio: f64) -> Option<f64> {
     (ratio.is_finite() && ratio > 0.0 && ratio < 1.0).then_some(ratio)
@@ -110,12 +108,10 @@ pub struct ShapeRegion {
     /// The primitive of each, with its rotation; the outer's is there unless the region is
     /// bands (a bevelled stroke's or touching strokes' outer outline is no primitive).
     pub shapes: Vec<Option<(Primitive, Angle)>>,
-    /// A band of constant width (one hole, outer and hole parallel offsets of one primitive,
-    /// `specs/0088` Part B criterion 16): the centre-line primitive and the stroke width it is
+    /// A band of constant width: the centre-line primitive and the stroke width it is
     /// written as; `None` for a filled region.
     pub band: Option<Band>,
-    /// Touching bands whose outer outlines the trace merged into the region's one (`adrs.md`
-    /// decision 22): one stroked primitive per hole; empty otherwise.
+    /// Touching bands whose outer outlines the trace merged into the region's one: one stroked primitive per hole; empty otherwise.
     pub bands: Vec<Band>,
 }
 
@@ -128,7 +124,7 @@ pub struct Band {
     pub rotation: Angle,
     /// The band's width: the stroke width.
     pub width: Mm,
-    /// The join the traced corners show (`adrs.md` decision 22): mitred or bevelled.
+    /// The join the traced corners show: mitred or bevelled.
     pub join: Join,
 }
 
@@ -151,10 +147,10 @@ pub(crate) fn tolerance(area: f64, pixel_mm: f64) -> f64 {
     (SHAPE_TOLERANCE_PX * pixel_mm).max(SHAPE_TOLERANCE_SHARE * area.sqrt())
 }
 
-/// The recognised regions of `outlines` (document millimetres), layer by layer (`layers` the
+/// The recognised regions of `outlines` (millimetres), layer by layer (`layers` the
 /// outline count of each colour, empty for one colour), in a picture of `pixel_mm` mm per pixel.
 /// A region is an outer outline and the holes inside it; the outer decides: one that matches no
-/// primitive leaves its region as paths (`adrs.md` Part B, the hole rule).
+/// primitive leaves its region as paths.
 #[must_use]
 pub(crate) fn recognise_shapes(
     outlines: &[BezPath],
@@ -255,7 +251,7 @@ fn recognise_layer(
 
 /// The band between the traced `outer` and its one `hole`, recognised as `o` and `i`: their
 /// centre-line primitive when they are parallel offsets of one, and the stroked area it covers is
-/// the traced band's within [`BAND_AREA_SHARE`] (the area guard of decision 16 for the stroke).
+/// the traced band's within [`BAND_AREA_SHARE`].
 fn band(outer: &Sampled, hole: &Sampled, o: &Fitted, i: &Fitted, tol: f64) -> Option<Band> {
     let traced = outer.area() - hole.area();
     let ((primitive, rotation), width) = band_of(o, i, traced, tol)?;
@@ -299,7 +295,7 @@ fn parent_of(
 
 /// Adds the shape section to a result `wire` of a picture mapped by `pixel_map` (the numbers of
 /// [`crate::job::run`] with `shapes: false`), after its text section; a result that was not
-/// traced is left as it is. The worker never calls it: it sets [`crate::job::Job::shapes`].
+/// traced is left as it is. [`crate::job::run`] never calls it; it sets [`crate::job::Job::shapes`].
 /// It stays public for the tests that time the shape pass on its own, which a whole job would
 /// hide behind the trace.
 pub fn add_shapes(wire: &mut Vec<f64>, pixel_map: PixelMap) {

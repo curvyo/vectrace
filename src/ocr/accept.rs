@@ -1,5 +1,4 @@
-//! Reads the text lines of a picture once for the trace worker (`specs/0091-trace-text-recognition`
-//! `adrs.md` decision 1) and decides which of them Trace sets as text.
+//! Reads the text lines of a picture once for a trace job and decides which of them are set as text.
 
 use std::ops::ControlFlow;
 
@@ -7,17 +6,14 @@ use crate::ocr::{
     LineCrop, OcrError, OcrModel, OcrProgress, TextLine, crop_lines, read_crop, read_lines,
 };
 
-/// The least mean character confidence of a line Trace sets as text (Proposal, `adrs.md`
-/// decision 2).
+/// The least mean character confidence of a line set as text.
 const MIN_LINE_CONFIDENCE: f64 = 0.6;
 
-/// The least mean character confidence of a line set as text without a sure letter (Frage 115 B
-/// / 117 B garbage filter; Proposal, calibrated on the customer's screenshot and the posters:
-/// UI chrome read as "88+" is 0.74, "ye" 0.34, real labels 0.89 and up).
+/// The least mean character confidence of a line set as text without a sure letter.
 const MIN_GUESSED_LINE_CONFIDENCE: f64 = 0.8;
 
 /// A line whose letters repeat a unit of at most this many characters is a pattern, not text
-/// (the `0025` dot grid read as "TOTOTO").
+/// (a dot grid read as "TOTOTO").
 const MAX_PATTERN_UNIT: usize = 3;
 
 /// The share of the OCR's percentage the detector takes; the lines take the rest.
@@ -33,12 +29,12 @@ pub struct OcrLine {
     /// The confidence of each character, 0 to 1.
     pub confidence: Vec<f64>,
     /// Where the reader saw each character: pixels along the quad's top edge from its first
-    /// corner; empty when not known (round 3: word gaps fall between characters).
+    /// corner; empty when not known.
     pub positions: Vec<f64>,
 }
 
 impl OcrLine {
-    /// Whether Trace sets the line as text: mean confidence at least `MIN_LINE_CONFIDENCE` and a
+    /// Whether the line is set as text: mean confidence at least `MIN_LINE_CONFIDENCE` and a
     /// letter or digit in it.
     #[must_use]
     pub fn accepted(&self) -> bool {
@@ -51,8 +47,7 @@ impl OcrLine {
         mean >= MIN_LINE_CONFIDENCE
     }
 
-    /// Whether the line becomes text even when no face gives it a sure letter (Frage 115 B /
-    /// 117 B, the garbage filter): at least 2 characters besides spaces, more than half of them
+    /// Whether the line becomes text even when no face gives it a sure letter: at least 2 characters besides spaces, more than half of them
     /// letters or digits, a mean confidence of at least `MIN_GUESSED_LINE_CONFIDENCE`, and not
     /// one short unit repeated.
     #[must_use]
@@ -123,7 +118,7 @@ fn kept(line: TextLine) -> OcrLine {
 }
 
 /// The detection half of [`read_text`]: the lines of `rgba` sampled for the recogniser, top
-/// to bottom, so a pool of workers can read them apart (`specs/0091` round 2).
+/// to bottom, so a pool of workers can read them apart.
 ///
 /// # Errors
 /// As [`crate::ocr::crop_lines`].
@@ -169,13 +164,13 @@ mod tests {
         assert_eq!(line("A", &[1.0]).scaled(0.5).quad[2], [5.0, 2.0]);
     }
 
-    /// Frage 115 B / 117 B: the garbage filter of a line without a sure letter.
+    /// The garbage filter of a line without a sure letter.
     #[test]
     fn the_garbage_filter_keeps_words_and_drops_marks_and_patterns() {
         assert!(line("Sans", &[0.9; 4]).plausible());
         assert!(line("Script ×+", &[0.89; 9]).plausible());
         assert!(line("Aa", &[0.93, 0.93]).plausible());
-        // One character: the 0025 ring read as "O".
+        // One character: a ring read as "O".
         assert!(!line("O", &[0.8]).plausible());
         // Mostly marks.
         assert!(!line("*1", &[0.9, 0.9]).plausible());
@@ -183,7 +178,7 @@ mod tests {
         // Under the threshold.
         assert!(!line("ye", &[0.34, 0.34]).plausible());
         assert!(!line("88+", &[0.74; 3]).plausible());
-        // A short unit repeated: the 0025 dot grid read as "TOTOTO".
+        // A short unit repeated: a dot grid read as "TOTOTO".
         assert!(!line("TOTOTO", &[0.95; 6]).plausible());
         assert!(!line("O O O", &[0.95; 5]).plausible());
         assert!(!line("abcabc", &[0.95; 6]).plausible());

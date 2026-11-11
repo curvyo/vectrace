@@ -1,4 +1,4 @@
-//! Measures the room every boundary chain has (`specs/0089` adrs.md §5, criterion 10): for each
+//! Measures the room every boundary chain has: for each
 //! segment of a chain's midpoint polyline, the distance to the nearest other boundary, so the
 //! smoothing and the fit can stay on their own side of every wall and gap by construction.
 //!

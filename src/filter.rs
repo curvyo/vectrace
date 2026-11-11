@@ -1,5 +1,4 @@
-//! The grey-level steps before the Threshold (`specs/0025-raster-trace` criteria 41 and 42,
-//! `adrs.md` note 2026-10-28 points 3 and 4): Denoise as a median of the integer luma and Upscale as
+//! The grey-level steps before the Threshold: Denoise as a median of the integer luma and Upscale as
 //! a 2x integer bilinear copy, both in whole numbers so every build gives the same bytes.
 
 use crate::TraceError;

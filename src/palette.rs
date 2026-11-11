@@ -1,5 +1,5 @@
-//! Builds the palette of a multicolour trace (`specs/0089` adrs.md §10, criterion 26): a
-//! deterministic median cut of the flat pixels in the sRGB unit cube (trial C1), colours closer
+//! Builds the palette of a multicolour trace: a
+//! deterministic median cut of the flat pixels in the sRGB unit cube, colours closer
 //! than [`MERGE_DISTANCE`] merged, the maker's fixed colours kept as they are.
 //!
 //! Only flat pixels vote (every neighbour of the 3 x 3 window within [`FLAT_BYTES`] per channel),
@@ -24,10 +24,10 @@ use merge::merged;
 /// Colours closer than this merge, in bytes (0.03 of the sRGB unit cube, frozen 2026-10-30).
 pub(crate) const MERGE_DISTANCE: f64 = 0.03 * 255.0;
 
-/// The most colours a palette holds (criterion 26).
+/// The most colours a palette holds.
 pub const MAX_COLOURS: usize = 16;
 
-/// The fewest colours a typed count asks for (criterion 26).
+/// The fewest colours a typed count asks for.
 pub const MIN_COLOURS: usize = 2;
 
 /// A pixel is flat when every opaque neighbour of its 3 x 3 window is within this many bytes per
@@ -42,7 +42,7 @@ const LINE_STRENGTH: f64 = 0.8;
 const LINE_PIXELS: usize = 4;
 
 /// The count an automatic palette falls back to when the flat colours form no distinct groups
-/// (a photo, a gradient): criterion 26's default (**Proposal**).
+/// (a photo, a gradient): the default.
 pub const DEFAULT_COLOURS: usize = 6;
 
 /// A palette entry before its pixels are counted: its colour and whether the maker fixed it.
@@ -75,7 +75,7 @@ pub(crate) fn palette(
     fixed: &[Rgb8],
 ) -> Vec<Entry> {
     let fixed_n = fixed.len().min(MAX_COLOURS);
-    // A palette deleted down to its last colour keeps it alone (customer 2026-11-09).
+    // A palette deleted down to its last colour keeps it alone.
     let lowest = if fixed_n == 0 {
         MIN_COLOURS
     } else {
@@ -85,7 +85,7 @@ pub(crate) fn palette(
     let free = wanted.unwrap_or(MAX_COLOURS).saturating_sub(fixed_n);
     // With a typed count a fixed colour explains the samples within the merge distance of it:
     // they would only find it again and merge into it, taking a slot the other colours need
-    // (customer 2026-11-10). The automatic count has a slot for every group anyway.
+    //. The automatic count has a slot for every group anyway.
     let unexplained: Vec<[u8; 3]> = samples
         .iter()
         .copied()

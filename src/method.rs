@@ -1,6 +1,6 @@
 //! The selection method of a trace and the colours it takes.
 
-/// A colour as its stored sRGB bytes (no colour management, `0058` D10).
+/// A colour as its stored sRGB bytes.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub struct Rgb8 {
     /// Red.
@@ -19,7 +19,7 @@ impl Rgb8 {
     }
 }
 
-/// The most picked colours Pick colours takes (**Proposal**, criterion 17).
+/// The most picked colours Pick colours takes.
 pub const MAX_SWATCHES: usize = 8;
 
 /// The picked colours of Pick colours: 0 to [`MAX_SWATCHES`], kept in a fixed array so the trace
@@ -49,7 +49,7 @@ impl Swatches {
     }
 }
 
-/// How pixels become content (`specs/0089` Terms, criterion 14, `adrs.md` §2, §3).
+/// How pixels become content.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum Selection {
     /// Pixels darker than the Threshold (`TraceParams::threshold`).

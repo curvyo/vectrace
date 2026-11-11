@@ -1,5 +1,4 @@
-//! The centre-line primitive of a traced band of constant width (`specs/0088-trace-recognition`
-//! Part B criterion 16, `adrs.md` decision 21): an outer and an inner primitive of one kind that
+//! The centre-line primitive of a traced band of constant width: an outer and an inner primitive of one kind that
 //! are parallel offsets of one primitive become that primitive with a stroke of the band's width.
 
 // The formulas' own names (a, b, d, h, p, r, ...) read better than long ones here.

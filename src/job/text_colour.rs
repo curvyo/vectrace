@@ -1,5 +1,4 @@
-//! The multicolour trace job with OCR lines (`specs/0091-trace-text-recognition` slice 2,
-//! criteria 23 and 24; `adrs.md` decisions 3 and 6).
+//! The multicolour trace job with OCR lines.
 //!
 //! The text pass runs as in black and white. The palette is the one of the picture as it is (the
 //! palette Recognise text off finds), so a colour only the text has stays a palette colour; the
@@ -21,16 +20,15 @@ use crate::wire::{
     Status, colour_head, colour_wire, job_percent, status_only, write_colour_tail, write_texts,
 };
 
-/// The share of a job's percent the palette of the unfilled picture takes (Proposal: it is the
-/// labelling part of a trace).
+/// The share of a job's percent the palette of the unfilled picture takes.
 const PALETTE_PERCENT: u32 = 25;
 
 /// One multicolour trace with the OCR `lines` (in this picture's pixels): the text pass, the
 /// palette of the picture as it is, the trace of the filled picture with that palette, then the
 /// numbers of [`colour_wire`] with the text section (each line's fill) between the outlines and
-/// the palette. With a `mask` (`specs/0094` criterion 11) only the lines whose box centre the
+/// the palette. With a `mask` only the lines whose box centre the
 /// mask keeps stay as text, and each layer is clipped. Without lines the numbers are exactly
-/// those of [`colour_wire`] (criteria 12 and 24).
+/// those of [`colour_wire`].
 pub(crate) fn text_colour_wire(
     raster: Raster<'_>,
     map: PixelMap,
@@ -158,12 +156,11 @@ fn background_of(raster: Raster<'_>, params: &ColourParams) -> Option<Rgb8> {
 /// sRGB unit cube, `vectrace` `MERGE_DISTANCE`).
 const EXCLUDE_DISTANCE_SQUARED: i32 = 58; // 7.65 squared, rounded down
 
-/// The fill of every accepted line of `pass` (decision 6) and whether the maker excluded it: the
+/// The fill of every accepted line of `pass` and whether the maker excluded it: the
 /// colour of `palette` nearest the line's colour, then through the maker's Merge into. The
 /// background colour of `raster` is a candidate only when the text lies on a shape (what is under
 /// it is nearer a palette colour than the background, white text on a box); text on the paper
-/// takes a palette colour, so pale text never becomes the paper's colour (Proposal, lead
-/// 2026-11-02). A fill the maker excluded leaves the line out, as its shapes are.
+/// takes a palette colour, so pale text never becomes the paper's colour. A fill the maker excluded leaves the line out, as its shapes are.
 fn line_fills(
     pass: &TextPass,
     palette: &[PaletteEntry],

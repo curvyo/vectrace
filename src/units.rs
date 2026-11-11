@@ -1,8 +1,7 @@
 //! The units of the tracer: millimetres, radians and the map from pixels to millimetres.
 //!
-//! The arithmetic of [`PixelMap`] is the arithmetic of `curvyo-document-core`'s `Affine`, entry
-//! for entry with `mul_add` unchanged, so a trace gives the same last bit as before (ADR 0048 §3);
-//! a test pins the bits.
+//! The arithmetic of [`PixelMap`] is a plain 2D affine transform with `mul_add` in a fixed order,
+//! so a trace gives the same last bit on every platform; a test pins the bits.
 
 use kurbo::{Point, Vec2};
 
@@ -169,8 +168,7 @@ mod tests {
         [1.0, 2.0, 2.0, 4.0, 0.0, 0.0],
     ];
 
-    // Frozen once from `curvyo-document-core`'s `Affine` (ADR 0048 §3): the bits of the results
-    // for `MAPS`, so the arithmetic stays the same last bit without that crate.
+    // Frozen once: the bits of the results for `MAPS`, so the arithmetic stays the same last bit.
     const COMPOSED: [[[u64; 6]; 5]; 5] = [
         [
             [

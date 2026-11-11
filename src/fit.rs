@@ -1,8 +1,7 @@
-//! Fits cubic Béziers to a chain between two nodes within the deviation tolerance (`specs/0089`
-//! adrs.md §5, trial D2 candidate (a)): Schneider's least-squares fit with fixed end tangent
+//! Fits cubic Béziers to a chain between two nodes within the deviation tolerance: Schneider's least-squares fit with fixed end tangent
 //! directions, up to four Newton reparameterisations, then a split at the point of largest
 //! deviation with one shared tangent (G1). A piece is accepted only after the measured check
-//! both ways (§4): every chain point to the curve at its parameter, and the curve sampled every
+//! both ways: every chain point to the curve at its parameter, and the curve sampled every
 //! 0.1 px to the chain near that parameter; both over-estimate the true distance, so an
 //! accepted piece is never further than the tolerance. Basic operations and `sqrt` only.
 

@@ -1,5 +1,4 @@
-//! The seam between the trace jobs and the area a masked trace keeps (`specs/0094` slice 1;
-//! ADR 0048 §4): what a job asks of a mask, so the jobs need no boolean kernel.
+//! The seam between the trace jobs and the area a masked trace keeps: what a job asks of a mask, so the jobs need no boolean kernel.
 
 use crate::{ColourTrace, TraceResult, node_count};
 use kurbo::{BezPath, Point};
@@ -25,7 +24,7 @@ pub struct Clipped {
     pub kept_whole: usize,
 }
 
-/// A traced result clipped in place (counts after the clip, `specs/0094` `adrs.md` decision 1);
+/// A traced result clipped in place;
 /// the outlines kept whole after a kernel refusal.
 pub(crate) fn clip_trace(mask: &dyn Mask, result: &mut TraceResult) -> usize {
     let clipped = mask.clip(&result.outlines);
@@ -60,7 +59,7 @@ pub(crate) fn clip_colours(mask: &dyn Mask, result: &mut ColourTrace) -> usize {
     kept_whole
 }
 
-/// The number that opens the unclipped count after a result's outlines (`specs/0094`): present
+/// The number that opens the unclipped count after a result's outlines: present
 /// only when a kernel refusal kept crossing outlines whole.
 pub(crate) const UNCLIPPED_MARK: f64 = -5.0;
 

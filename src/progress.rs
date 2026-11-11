@@ -1,4 +1,4 @@
-//! How a trace reports where it is and learns that it should stop (ADR 0023 §2): `poll` at fixed
+//! How a trace reports where it is and learns that it should stop: `poll` at fixed
 //! work boundaries, never on a clock.
 
 use std::ops::ControlFlow;

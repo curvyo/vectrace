@@ -17,13 +17,11 @@ pub(crate) const BAND_TINY: f64 = 1.5;
 /// The tolerance of a shape of a few pixels, source px.
 pub(crate) const TINY_TOLERANCE_PX: f64 = 0.25;
 
-/// An outline keeps its fit down to this share of the Specks area (the harness and 0025
-/// criterion 63 allow 0.95 for pixel rounding); below it the Specks band applies.
+/// An outline keeps its fit down to this share of the Specks area; below it the Specks band applies.
 pub(crate) const BAND_SHARE: f64 = 0.95;
 
 /// The Specks band: a fitted outline whose area falls below the Specks area `min_area_px`,
-/// which its pixels reached (the Specks step kept them), keeps its pixel border (criteria 10
-/// and 19).
+/// which its pixels reached (the Specks step kept them), keeps its pixel border.
 pub(crate) struct Band {
     pub(crate) min_area_px: f64,
 }
@@ -113,7 +111,7 @@ impl Guarded {
 /// level coarser (`outline::SPAN_LEVELS`: the fit within the walked room, the walked contour
 /// simplified within half its room, the contour as walked); where the walked contour is not
 /// enough, the span's corners go back to their vertices, and then the outline becomes its
-/// pixel border (criterion 10).
+/// pixel border.
 pub(crate) fn guarded(
     chains: &[&Chain],
     geometry: &Geometry,

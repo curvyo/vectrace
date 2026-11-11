@@ -1,8 +1,7 @@
-//! The automatic analysis of a picture (`specs/0089-trace-quality-and-colour` slice F, `adrs.md`
-//! §9): heuristic and explainable, no model. It measures properties with a confidence, names an
+//! The automatic analysis of a picture: heuristic and explainable, no model. It measures properties with a confidence, names an
 //! image type and a capture condition, and proposes image-dependent values only (the selection
 //! method with its background and Colour tolerance, and the Threshold), never a preset, Smooth,
-//! Corners, Ignore below, Output or picked colours (Frage 86 A). Global measures run on a reduced
+//! Corners, Ignore below, Output or picked colours. Global measures run on a reduced
 //! copy, the noise on full-resolution crops; the result is deterministic.
 
 mod classify;
@@ -13,8 +12,7 @@ use crate::TraceError;
 use crate::params::Selection;
 use crate::raster::Raster;
 
-/// A count of pixels, edges or regions as `f64`: a picture holds at most 2^32 pixels (ADR 0023
-/// §2), far below the 2^52 an `f64` holds exactly.
+/// A count of pixels, edges or regions as `f64`: a picture holds at most 2^32 pixels, far below the 2^52 an `f64` holds exactly.
 #[allow(clippy::cast_precision_loss)]
 pub(crate) fn real(n: usize) -> f64 {
     n as f64
@@ -27,7 +25,7 @@ pub(crate) fn real64(n: u64) -> f64 {
 }
 
 /// Below this confidence the analysis falls back to Brightness at the automatic Threshold and
-/// says so (criterion 32).
+/// says so.
 pub const LOW_CONFIDENCE: f64 = 0.5;
 
 /// What a property measures.
@@ -65,7 +63,7 @@ pub enum PropertyKind {
     ComponentSize,
     /// The mean stroke width of the content (source px).
     StrokeWidth,
-    /// Rows of letter-like components (count; reported only, `0088` reads text).
+    /// Rows of letter-like components (count; reported only).
     TextRows,
     /// Share of the picture in a wide middle tone class between ink and paper, such as a shadow
     /// (0 to 1).
@@ -83,7 +81,7 @@ pub struct Property {
     pub confidence: f64,
 }
 
-/// What the picture shows (criterion 31).
+/// What the picture shows.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ImageType {
     /// Graphic or clipart: shapes, silhouettes, coloured areas.
@@ -96,7 +94,7 @@ pub enum ImageType {
     Sketch,
 }
 
-/// How the picture was made (criterion 31: a capture condition, not a type).
+/// How the picture was made.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Capture {
     /// A digital picture: flat areas without noise, or a transparent background.
@@ -120,7 +118,7 @@ pub enum Reason {
     LowConfidence,
 }
 
-/// The image-dependent values the analysis proposes (Frage 86 A).
+/// The image-dependent values the analysis proposes.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Proposal {
     /// The method with its background and Colour tolerance.
@@ -156,14 +154,14 @@ impl AnalysisReport {
             .map(|p| p.value)
     }
 
-    /// Whether the type is unclear and the proposal is the fallback (criterion 32).
+    /// Whether the type is unclear and the proposal is the fallback.
     #[must_use]
     pub fn low_confidence(&self) -> bool {
         self.confidence < LOW_CONFIDENCE
     }
 }
 
-/// Analyses `raster` (criteria 31 to 34): measures its properties, names its type and capture,
+/// Analyses `raster`: measures its properties, names its type and capture,
 /// and proposes the image-dependent values with their reasons.
 ///
 /// # Errors
@@ -216,7 +214,7 @@ mod tests {
     }
 
     /// Black bars on digital white: Brightness at the automatic Threshold, no reason, digital,
-    /// thick shapes; the same report twice (criterion 34).
+    /// thick shapes; the same report twice.
     #[test]
     fn black_shapes_on_white_keep_brightness_at_the_automatic_threshold() {
         let rgba = picture(200, 200, |x, y| {
@@ -242,7 +240,7 @@ mod tests {
     }
 
     /// A pale yellow panel beside a black bar on white: Brightness misses it, so Remove
-    /// background with white and a tolerance at half the yellow's distance (criteria 31, 33).
+    /// background with white and a tolerance at half the yellow's distance.
     #[test]
     fn pale_colours_on_white_propose_remove_background() {
         let rgba = picture(200, 200, |x, y| {
@@ -305,7 +303,7 @@ mod tests {
 
     /// A photographed sheet: a desk around it, grain, a wide shadow over a corner and thin
     /// strokes. The capture is a paper photo and the Threshold drops to the lower cut, below
-    /// the shadow (criterion 31: "shadow left out").
+    /// the shadow.
     #[test]
     fn a_shadow_on_a_photographed_sheet_is_left_out() {
         let rgba = picture(400, 300, |x, y| {
@@ -349,7 +347,7 @@ mod tests {
         assert!(r.value(PropertyKind::StraightEdges).unwrap() > 0.5);
     }
 
-    /// Rows of letter-like blocks make a Logo; text is only counted (criterion 31).
+    /// Rows of letter-like blocks make a Logo; text is only counted.
     #[test]
     fn rows_of_letters_make_a_logo() {
         let rgba = picture(400, 300, |x, y| {
@@ -372,7 +370,7 @@ mod tests {
     }
 
     /// A grainy picture that is mostly dark (a photo, no paper) is unclear: the fallback with
-    /// its reason (criterion 32).
+    /// its reason.
     #[test]
     fn a_dark_photo_falls_back_with_low_confidence() {
         let rgba = picture(300, 200, |x, y| {

@@ -1,6 +1,21 @@
-//! One trace job of the Trace tool's worker and its result as a flat list of numbers
-//! (`specs/0025-raster-trace` criteria 11, 15, 16 and 17; ADR 0023 §5): the worker runs
-//! [`crate::job::run`], posts the numbers, and the session reads them back with [`read`].
+//! A trace job as a flat list of numbers, and the reader that turns the numbers back into an
+//! [`Output`].
+//!
+//! [`crate::job::run`] returns a `Vec<f64>` so that a result can cross a thread, process or
+//! WebAssembly boundary without a shared type; [`read`] decodes it. Every number is finite; counts
+//! are whole numbers; lengths are millimetres. The layout, in order:
+//!
+//! | Part | Numbers |
+//! |---|---|
+//! | header (7) | status (0 traced, 1 too detailed, 2 invalid), paths, nodes, specks removed, foreground pixels, covers whole picture (0 or 1), outline count |
+//! | outlines | per outline: element count, then per element a tag and its points: `0 x y` move, `1 x y` line, `3 x1 y1 x2 y2 x y` cubic, `4` close |
+//! | unclipped, optional | `-5`, count of outlines a mask kept whole because it could not clip them |
+//! | text, optional | `-1`, lines found, accepted lines with their outlines (only with OCR lines) |
+//! | shapes, optional | `-4`, then one record per recognised region (only with `Job::shapes`) |
+//! | colours, optional | palette (count, then `r g b fixed pixels` each), layers (count, then `r g b outlines` each, outlines follow layer by layer), joined regions |
+//!
+//! A status other than 0 is the header alone with zeros. [`read`] returns `None` for numbers that
+//! do not follow this layout.
 
 use std::ops::ControlFlow;
 
@@ -24,7 +39,7 @@ pub use text::{Text, Texts};
 pub enum Status {
     /// Outlines were made (possibly none).
     Traced,
-    /// A region has 65 000 holes or more: "Too much detail: raise Ignore below." (criterion 16).
+    /// A region has 65 000 holes or more: "Too much detail: raise Ignore below.".
     TooDetailed,
     /// The picture or the map cannot be traced.
     Invalid,
@@ -50,7 +65,7 @@ impl Status {
     }
 }
 
-/// A trace result as the session keeps it.
+/// A trace result, decoded by [`read`].
 #[derive(Debug, Clone, PartialEq)]
 pub struct Output {
     /// How the job ended.
@@ -65,20 +80,20 @@ pub struct Output {
     pub foreground_pixels: u64,
     /// One outline covers the whole picture.
     pub covers_whole_image: bool,
-    /// The outlines in document millimetres (a multicolour result: layer by layer).
+    /// The outlines in millimetres (a multicolour result: layer by layer).
     pub outlines: Vec<BezPath>,
-    /// The palette of a multicolour result (`specs/0089` slice M); empty for one colour.
+    /// The palette of a multicolour result; empty for one colour.
     pub palette: Vec<Palette>,
     /// The layers of a multicolour result in order, largest area first; empty for one colour.
     pub layers: Vec<Layer>,
     /// Colour regions below Ignore below joined to a neighbour (multicolour).
     pub joined: usize,
-    /// The text pass's lines (`specs/0091`); empty without OCR lines.
+    /// The text pass's lines; empty without OCR lines.
     pub texts: Texts,
-    /// The recognised shapes (`specs/0088` Part B); empty with Recognise shapes off. Each
+    /// The recognised shapes; empty with shape recognition off. Each
     /// recognised outline in `outlines` is already its primitive's outline.
     pub shapes: Vec<crate::shapes::ShapeRegion>,
-    /// Outlines kept whole across the mask edge after a kernel refusal (`specs/0094`).
+    /// Outlines kept whole across the mask edge after a kernel refusal.
     pub unclipped: usize,
 }
 
@@ -115,7 +130,7 @@ const CLOSE: f64 = 4.0;
 /// The share of the passes over the mask in a job's percentage; the outlines take the rest.
 const LABELLING_PERCENT: u32 = 30;
 
-/// Where a job is, in whole percent (the progress pill, `specs/0025-raster-trace` criterion 10):
+/// Where a job is, in whole percent:
 /// the passes over the mask fill the first 30 %, the outlines the rest. A pass restarts its rows,
 /// so the caller keeps the highest value.
 pub(crate) fn job_percent(progress: Progress) -> u8 {
@@ -137,8 +152,8 @@ pub(crate) fn job_percent(progress: Progress) -> u8 {
 }
 
 /// One trace of `raster` (straight alpha) mapped by `map` with `params`, the outlines clipped to
-/// `mask` before they are written (`specs/0094` slice 1); the result as numbers. `on_percent` is
-/// called each time the job reaches a higher whole percent (criterion 10); the values only rise.
+/// `mask` before they are written; the result as numbers. `on_percent` is
+/// called each time the job reaches a higher whole percent; the values only rise.
 /// Never panics on bad input: it says `Invalid`.
 pub(crate) fn mono_wire(
     raster: Raster<'_>,
@@ -180,8 +195,8 @@ pub(crate) fn mono_wire(
     }
 }
 
-/// One multicolour trace (`specs/0089` slice M): as [`mono_wire`], the outlines layer by layer,
-/// each layer clipped to `mask` before it is written (`specs/0094` slice 1), then the palette and
+/// One multicolour trace: as [`mono_wire`], the outlines layer by layer,
+/// each layer clipped to `mask` before it is written, then the palette and
 /// the layers (each colour and its outline count) and the joined regions after them.
 pub(crate) fn colour_wire(
     raster: Raster<'_>,
@@ -505,7 +520,7 @@ mod tests {
         assert_eq!((b.x0, b.y0, b.x1, b.y1), (3.0, 4.0, 7.0, 8.0));
     }
 
-    /// `specs/0089` slice M: the colour job's palette, layers and joined regions cross the
+    /// The colour job's palette, layers and joined regions cross the
     /// wire after the outlines; a tail that does not hold the outlines is refused.
     #[test]
     fn a_colour_job_round_trips_its_palette_and_layers() {
@@ -568,7 +583,7 @@ mod tests {
         assert_eq!(super::read(&single).unwrap().layers, []);
     }
 
-    /// The worker's analysis (`specs/0089` slice F): a report for a valid picture, none for
+    /// The analysis: a report for a valid picture, none for
     /// bytes that do not match the size.
     #[test]
     fn the_analysis_reads_valid_pictures_only() {

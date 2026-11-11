@@ -1,5 +1,4 @@
-//! Smooths a boundary chain with a binomial kernel before the fit (`specs/0089` adrs.md §5,
-//! input smoothing): repeated `[1, 2, 1] / 4` passes, an open chain's end points pinned.
+//! Smooths a boundary chain with a binomial kernel before the fit: repeated `[1, 2, 1] / 4` passes, an open chain's end points pinned.
 
 use kurbo::Point;
 

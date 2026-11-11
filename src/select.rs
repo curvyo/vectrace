@@ -1,7 +1,7 @@
-//! The selection step of a trace (`specs/0089-trace-quality-and-colour` slice C, `adrs.md` §3):
+//! The selection step of a trace:
 //! per pixel a score from the method and the alpha, which Denoise and Upscale filter and whose
 //! product `α/255 · s ≥ ½` is the mask; alpha is counted once and never composited over a
-//! colour. Colours are compared as their stored sRGB bytes (trial C1, `plan.md`): Euclidean
+//! colour. Colours are compared as their stored sRGB bytes : Euclidean
 //! distance for Remove background, the two-colour mixing model for Pick colours.
 
 use crate::palette::distance;
@@ -18,7 +18,7 @@ pub(crate) const OPAQUE: u8 = 128;
 /// The colour tolerance 100 as a distance in the sRGB unit cube.
 const GATE_AT_100: f64 = 0.5;
 
-/// The colour tolerance a first use of Pick colours starts at (Proposal): with the noise
+/// The colour tolerance a first use of Pick colours starts at: with the noise
 /// filter of the Pick colours scorer it selects 99 % or more of a picked shape with +-6 per channel of
 /// noise (19: 99.2 %), and picking #D9D9D9 leaves the star's anti-aliased rim and the solid
 /// #DCD6CF out, which it no longer does from 20.

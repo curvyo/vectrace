@@ -1,5 +1,4 @@
-//! The text section of the wire: the accepted lines with their fills (`specs/0091-trace-text-recognition`
-//! `adrs.md` decisions 1 to 3), written after a result's numbers and read back.
+//! The text section of the wire: the accepted lines with their fills, written after a result's numbers and read back.
 
 use kurbo::{BezPath, Vec2};
 
@@ -10,8 +9,8 @@ use crate::{Mm, Rgb8};
 /// The number that opens the text section (no count is negative).
 pub(crate) const TEXT_MARK: f64 = -1.0;
 
-/// The number that opens the lines' fills after the lines of a multicolour result (slice 2); a
-/// black and white text section has none and is as in slice 1.
+/// The number that opens the lines' fills after the lines of a multicolour result; a
+/// black and white text section has none.
 const FILL_MARK: f64 = -2.0;
 
 /// The number that opens the excluded lines after the fills (their count and places); absent when
@@ -23,26 +22,25 @@ const EXCLUDED_MARK: f64 = -3.0;
 pub struct Text {
     /// The OCR's string.
     pub text: String,
-    /// The line's direction in document millimetres.
+    /// The line's direction in millimetres.
     pub direction: Vec2,
     /// Pixels left out of the main trace for it.
     pub masked: usize,
-    /// The OCR line passes the garbage filter (Frage 115 B / 117 B): it becomes text even
+    /// The OCR line passes the garbage filter: it becomes text even
     /// without a sure letter.
     pub plausible: bool,
-    /// The size of one picture pixel along the line, document millimetres (the fit's tolerance,
-    /// criterion 26).
+    /// The size of one picture pixel along the line, millimetres.
     pub pixel: Mm,
-    /// Where the reader saw each character, along the line's unit direction (round 3).
+    /// Where the reader saw each character, along the line's unit direction.
     pub positions: Vec<Mm>,
     /// The text's fill in a multicolour result: the palette or background colour nearest the
-    /// line's text pixels (slice 2, decision 6); `None` in black and white and in the text pass
+    /// line's text pixels; `None` in black and white and in the text pass
     /// alone.
     pub fill: Option<Rgb8>,
     /// The maker excluded the line's fill: it is left out, as the shapes of that colour are
     /// (multicolour only).
     pub excluded: bool,
-    /// The line's own outlines in document millimetres.
+    /// The line's own outlines in millimetres.
     pub outlines: Vec<BezPath>,
 }
 

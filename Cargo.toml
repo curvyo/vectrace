@@ -67,3 +67,59 @@ opt-level = 3
 codegen-units = 1
 lto = true
 opt-level = 3
+
+# Each example runs during `cargo test` (harness = false: the binary's own asserts decide).
+[[example]]
+name = "trace_threshold"
+test = true
+harness = false
+
+[[example]]
+name = "remove_background"
+test = true
+harness = false
+
+[[example]]
+name = "pick_colours"
+test = true
+harness = false
+
+[[example]]
+name = "presets"
+test = true
+harness = false
+
+[[example]]
+name = "tune_geometry"
+test = true
+harness = false
+
+[[example]]
+name = "multicolour"
+test = true
+harness = false
+
+[[example]]
+name = "recognise_shapes"
+test = true
+harness = false
+
+[[example]]
+name = "analyse"
+test = true
+harness = false
+
+[[example]]
+name = "masked_parts"
+test = true
+harness = false
+
+[[example]]
+name = "read_text"
+test = true
+harness = false
+
+[[example]]
+name = "progress_and_cancel"
+test = true
+harness = false

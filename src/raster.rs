@@ -1,8 +1,9 @@
-//! The picture as the tracer reads it (`specs/0025-raster-trace` Terms, criterion 9; `specs/0089`
-//! criterion 15): the luma of the stored RGB of the straight-alpha RGBA8 pixels (alpha is
-//! counted apart, never composited), and Otsu's automatic Threshold over the opaque pixels.
+//! The picture as the tracer reads it: the luma of the stored RGB of the straight-alpha RGBA8
+//! pixels (alpha is counted apart, never composited), and Otsu's automatic threshold over the
+//! opaque pixels.
 
-/// A straight-alpha RGBA8 picture, row-major, top row first (ADR 0017 §6).
+/// A straight-alpha RGBA8 picture, row-major, top row first. Functions that take one return
+/// an `Invalid` error when `rgba` is not exactly `width * height * 4` bytes or a side is 0.
 #[derive(Debug, Clone, Copy)]
 pub struct Raster<'a> {
     /// Width in pixels.
@@ -21,8 +22,7 @@ impl Raster<'_> {
     }
 }
 
-/// The luma of a pixel's stored RGB: `0.2126 R + 0.7152 G + 0.0722 B` in integers, rounded
-/// (`0058` D10, no colour management); the alpha is not part of it (`specs/0089` criterion 15).
+/// The luma of a pixel's stored RGB: `0.2126 R + 0.7152 G + 0.0722 B` in integers, rounded; the alpha is not part of it.
 #[must_use]
 pub fn luma(r: u8, g: u8, b: u8) -> u8 {
     let weighted = 2126 * u32::from(r) + 7152 * u32::from(g) + 722 * u32::from(b);
@@ -30,9 +30,9 @@ pub fn luma(r: u8, g: u8, b: u8) -> u8 {
     u8::try_from((weighted + 5000) / 10_000).unwrap_or(u8::MAX)
 }
 
-/// The automatic Threshold (criterion 9): Otsu's method on the luma histogram, so that the
+/// The automatic Threshold: Otsu's method on the luma histogram, so that the
 /// pixels below the returned value are the dark class. A pixel with alpha under 128 is never
-/// content (`specs/0089` criterion 15), so it counts in the top level, the class nothing below
+/// content, so it counts in the top level, the class nothing below
 /// any Threshold reaches, whatever its stored colour; the others count by the luma of their
 /// stored RGB (nothing is composited). Where several cuts separate the classes equally well, the
 /// middle one; a picture of one level (or an invalid raster) gives 128.
@@ -117,7 +117,7 @@ mod tests {
         assert_eq!(luma(0, 0, 255), 18);
     }
 
-    /// `specs/0089` criterion 15: a transparent pixel counts as nothing (the top level) whatever
+    /// A transparent pixel counts as nothing (the top level) whatever
     /// its stored colour, so the opaque dark and light parts are split apart from it.
     #[test]
     fn otsu_counts_transparent_pixels_as_nothing() {

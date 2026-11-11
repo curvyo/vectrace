@@ -1,5 +1,5 @@
 //! Walks the crack edges around one pixel shape into its closed boundary chain
-//! (`specs/0089` adrs.md §5): integer pixel corners, one per unit edge, replacing visioncortex's
+//!: integer pixel corners, one per unit edge, replacing visioncortex's
 //! walk and its `u16` limit.
 
 /// A pixel corner: `x` right, `y` down, in pixels of the shape's box.

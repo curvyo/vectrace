@@ -1,4 +1,4 @@
-//! Cuts every region out of the labels and walks its boundary chains (`specs/0089` adrs.md §5):
+//! Cuts every region out of the labels and walks its boundary chains:
 //! the outer boundary with the region's holes filled, each hole's boundary reversed.
 
 use kurbo::Point;

@@ -1,5 +1,4 @@
-//! Finds the structural corners of a closed crack chain before any smoothing (`specs/0089`
-//! adrs.md §5, trial D1 candidate (b)): the multi-scale turn angle picks the corner vertices, the
+//! Finds the structural corners of a closed crack chain before any smoothing: the multi-scale turn angle picks the corner vertices, the
 //! crossing of the two adjacent total-least-squares lines places them.
 //!
 //! The turn at vertex `k` and scale `s` is the angle between the directions of the `s` edge

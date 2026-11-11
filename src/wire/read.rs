@@ -37,14 +37,14 @@ pub(crate) fn read_trace_body(wire: &[f64]) -> Option<(Output, usize)> {
     let mut at = HEADER;
     let outline_count = count(header[6])?;
     let outlines = read_outlines(wire, &mut at, outline_count)?;
-    // `specs/0094`: the unclipped count, when a kernel refusal kept outlines whole.
+    // The unclipped count, when a kernel refusal kept outlines whole.
     let unclipped = if wire.get(at) == Some(&UNCLIPPED_MARK) {
         at += 2;
         count(*wire.get(at - 1)?)?
     } else {
         0
     };
-    // `specs/0091`: the text section, when the job had OCR lines.
+    // The text section, when the job had OCR lines.
     let texts = if wire.get(at) == Some(&TEXT_MARK) {
         let (texts, used) = read_texts(&wire[at..])?;
         at += used;
@@ -52,7 +52,7 @@ pub(crate) fn read_trace_body(wire: &[f64]) -> Option<(Output, usize)> {
     } else {
         Texts::default()
     };
-    // `specs/0088` Part B: the shape section, when Recognise shapes was on.
+    // The shape section, when shape recognition was on.
     let shapes_at = at;
     let shapes = if wire.get(at) == Some(&crate::shapes::SHAPE_MARK) {
         let (shapes, used) = crate::shapes::read_shapes(&wire[at..], outline_count)?;

@@ -1,10 +1,9 @@
-//! Reads text lines from an RGBA raster with model weights handed in as bytes (ADR 0028).
+//! Reads text lines from an RGBA raster with model weights handed in as bytes.
 //!
-//! The pipeline is ours (ADR 0028 §3): the `PaddleOCR` detector (DB) finds word boxes on a copy at
+//! The pipeline is ours: the `PaddleOCR` detector (DB) finds word boxes on a copy at
 //! most `DETECTION_SIDE` px long, the boxes are grouped into lines with one quad each (rotated
 //! text allowed), and the Latin recogniser reads each line along its quad with greedy CTC. Only
-//! the inference runs in `rten`; it brings `rayon` (ADR 0028 §4: in wasm everything runs on the
-//! calling thread, natively only the tests run it), this crate spawns nothing, keeps no global
+//! the inference runs in `rten`; it brings `rayon`, this crate spawns nothing, keeps no global
 //! state and reads no clock. Pixel space throughout: x right, y down, origin at the raster's top
 //! left corner.
 
@@ -38,7 +37,7 @@ pub struct TextLine {
     /// The confidence of each character of `text`, 0 to 1.
     pub confidence: Vec<f32>,
     /// Where the recogniser saw each character of `text`: source pixels along the quad's top
-    /// edge from its first corner (`specs/0091` round 3: word gaps fall between characters).
+    /// edge from its first corner.
     pub positions: Vec<f32>,
 }
 
@@ -76,7 +75,7 @@ pub enum OcrError {
 /// Reads the text lines of `rgba` (`width` x `height`, straight alpha, composited on white)
 /// with `model`, top to bottom: [`crop_lines`], then [`read_crop`] of each. `poll` is called
 /// before the detector and after each line; a `Break` ends the read with
-/// [`OcrError::Cancelled`]. Deterministic: the same input gives the same lines (ADR 0028 §6).
+/// [`OcrError::Cancelled`]. Deterministic: the same input gives the same lines.
 ///
 /// # Errors
 /// [`OcrError::Invalid`] for a raster whose size does not match its bytes or that is empty,
@@ -104,7 +103,7 @@ pub fn read_lines(
 }
 
 /// The lines `model`'s detector finds in `rgba`, top to bottom, each sampled for the recogniser
-/// (the detection half of [`read_lines`]; the crops can be read apart, `specs/0091` round 2).
+///.
 /// `poll` is called before the detector.
 ///
 /// # Errors

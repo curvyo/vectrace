@@ -1,5 +1,5 @@
 //! The regular polygon or star a sampled traced outline is within a tolerance of
-//! (`specs/0088-trace-recognition` Part B criteria 3, 4 and 7): the count from the strongest
+//!: the count from the strongest
 //! harmonic of the outline's radius, every side folded onto the first one and fitted as one line
 //! (the turn where the folded sides agree best), a polygon before a star.
 
@@ -15,8 +15,7 @@ use crate::shapes::math::{atan2, sin_cos};
 use crate::shapes::sample::{Sampled, length};
 use crate::shapes::{POINTS, Primitive, valid_ratio};
 
-/// The most sides of a polygon and points of a star looked for (Proposal; more sides read as a
-/// circle within the tolerance).
+/// The most sides of a polygon and points of a star looked for.
 const MOST_CORNERS: usize = 24;
 
 /// The part of each side, about its middle, a line is fitted to (the corners are left out).
@@ -35,7 +34,7 @@ pub(crate) fn polygon_or_star(outline: &Sampled, tolerance: f64) -> Option<Fitte
 }
 
 /// How far, in all, the outline may step back around its centroid and still count as turning one
-/// way (a traced corner can step back by a fraction of a pixel; Proposal: 1 % of a turn).
+/// way.
 const MOST_BACK: f64 = 0.01 * TAU;
 
 /// Each point's angle seen from the centroid, when the outline turns one way around it (a star

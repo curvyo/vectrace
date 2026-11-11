@@ -1,5 +1,4 @@
-//! Builds the label map of a multicolour trace (`specs/0089` adrs.md §10, criteria 26, 27,
-//! 29) from the cleaned mask of the single-colour path: the palette, every content pixel's
+//! Builds the label map of a multicolour trace from the cleaned mask of the single-colour path: the palette, every content pixel's
 //! colour, the maker's exclusions, small colour regions joined.
 
 use crate::units::PixelMap;

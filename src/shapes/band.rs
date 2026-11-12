@@ -42,6 +42,7 @@ pub(crate) fn band_of(
             (c1, a1.as_mm(), b1.as_mm()),
             (c2, a2.as_mm(), b2.as_mm()),
             (*o_turn, *i_turn),
+            traced,
             tolerance,
         )?,
         (
@@ -119,12 +120,15 @@ fn near(p: Point, q: Point, tolerance: f64) -> bool {
     length(p.x - q.x, p.y - q.y) <= tolerance
 }
 
-/// The band of two ellipses: one centre and turn (none for circles), both radii shrunk alike.
+/// The band of two ellipses: one centre and turn (none for circles), both radii shrunk alike. The
+/// width is the one whose stroke covers the `traced` area, as a star's is: on a band a few pixels
+/// wide the two fits' radius differences carry each fit's error, the area sums the whole band.
 fn ellipse_band(
     outer: &Primitive,
     (c1, a1, b1): (Point, f64, f64),
     (c2, a2, b2): (Point, f64, f64),
     turns: (Angle, Angle),
+    traced: f64,
     tolerance: f64,
 ) -> Option<(Fitted, f64)> {
     let round = (a1 - b1).abs() <= tolerance && (a2 - b2).abs() <= tolerance;
@@ -140,12 +144,18 @@ fn ellipse_band(
     if !near(c1, c2, tolerance) || !turned || (da - db).abs() > 2.0 * tolerance {
         return None;
     }
+    let (a, b) = (f64::midpoint(a1, a2), f64::midpoint(b1, b2));
+    // Steiner: the stroke of width w covers the middle ellipse's perimeter times w.
+    let width = traced / ellipse_perimeter(a, b);
+    if (width - f64::midpoint(da, db)).abs() > tolerance {
+        return None;
+    }
     let mut shape = *outer;
     if let Primitive::Ellipse { rx, ry, .. } = &mut shape {
-        *rx = Mm::from_mm(f64::midpoint(a1, a2));
-        *ry = Mm::from_mm(f64::midpoint(b1, b2));
+        *rx = Mm::from_mm(a);
+        *ry = Mm::from_mm(b);
     }
-    Some(((shape, turns.0), f64::midpoint(da, db)))
+    Some(((shape, turns.0), width))
 }
 
 /// The band of two regular polygons of `n` sides: one centre and turn; the centre line's apothem
@@ -296,6 +306,11 @@ fn star_band(
     Some(((shape, Angle::from_radians(0.0)), width))
 }
 
+/// The perimeter of an ellipse of semi-axes `a` and `b` (Ramanujan).
+fn ellipse_perimeter(a: f64, b: f64) -> f64 {
+    PI * (3.0 * (a + b) - ((3.0 * a + b) * (a + 3.0 * b)).sqrt())
+}
+
 /// The area a stroke of `width` along the closed outline of `shape` covers (mitred corners):
 /// the outer offset's area less the inner offset's.
 pub(crate) fn stroked_area(shape: &Primitive, width: f64) -> f64 {
@@ -303,9 +318,7 @@ pub(crate) fn stroked_area(shape: &Primitive, width: f64) -> f64 {
     match *shape {
         Primitive::Ellipse { rx, ry, .. } => {
             // Steiner: a convex curve's offsets differ in area by its length times the width.
-            let (a, b) = (rx.as_mm(), ry.as_mm());
-            let perimeter = PI * (3.0 * (a + b) - ((3.0 * a + b) * (a + 3.0 * b)).sqrt());
-            perimeter * width
+            ellipse_perimeter(rx.as_mm(), ry.as_mm()) * width
         }
         Primitive::Rect {
             width: rect_w,
